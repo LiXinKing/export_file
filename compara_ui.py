@@ -141,6 +141,9 @@ class Ui_MainWindow(object):
         msg_box.exec_()
 
 if __name__ == "__main__":
+    # 设置log的位置
+    config_log_path(os.getcwd())
+
     app = QtGui.QApplication(sys.argv)
     form = QtGui.QMainWindow()
     ui = Ui_MainWindow()

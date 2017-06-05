@@ -6,7 +6,7 @@ from datetime import datetime
 from log import debug_log
 from common import *
 
-DEFAULT_REMOTE_PATH = "https://raw.githubusercontent.com"
+DEFAULT_REMOTE_PATH = "http://raw.githubusercontent.com"
 DEFAULT_USER_NAME = "LiXinKing"
 DEFAULT_PROJECT_NAME = "login"
 
@@ -43,8 +43,12 @@ def download_file(commit, path, local_path):
     commit_path = "/" + commit + "/" + path
     local_file_path = local_path + path
 
-    if not make_dir_p(os.path.dirname(local_file_path)):
+    try:
+        #创健目录
+        make_dir_p(os.path.dirname(local_file_path))
+    except Exception, e:
         debug_log("download_file:make dir %s error" % local_file_path)
+        debug_log(str(e))
         return False
 
     debug_log("download_file:download path is %s" % (ex_path + commit_path))
