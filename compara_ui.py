@@ -23,7 +23,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(439, 325)
+        MainWindow.resize(439, 365)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.label = QtGui.QLabel(self.centralwidget)
@@ -60,8 +60,12 @@ class Ui_MainWindow(object):
         self.pushButton_2.setGeometry(QtCore.QRect(340, 180, 75, 23))
         self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
         self.pushButton_3 = QtGui.QPushButton(self.centralwidget)
-        self.pushButton_3.setGeometry(QtCore.QRect(150, 240, 101, 41))
+        self.pushButton_3.setGeometry(QtCore.QRect(150, 280, 101, 41))
         self.pushButton_3.setObjectName(_fromUtf8("pushButton_3"))
+        self.progressBar = QtGui.QProgressBar(self.centralwidget)
+        self.progressBar.setGeometry(QtCore.QRect(60, 230, 321, 31))
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName(_fromUtf8("progressBar"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 439, 23))
