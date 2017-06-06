@@ -2,7 +2,6 @@
 from PyQt4 import QtCore, QtGui
 from log import *
 from common import *
-from export_file import do_export
 import sys
 import os
 
@@ -64,7 +63,7 @@ class Ui_MainWindow(object):
         self.pushButton_3.setObjectName(_fromUtf8("pushButton_3"))
         self.progressBar = QtGui.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(60, 230, 321, 31))
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName(_fromUtf8("progressBar"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -133,12 +132,46 @@ class Ui_MainWindow(object):
             self.show_msg("save_path %s is not valid" % save_path)
             return
 
-        ret = do_export(begin_commit, end_commit, local_git_path, save_path, check_status)
-        if ret != EXEC_SUCCESS:
-            if ERROR_MAP.has_key(ret):
-                self.show_msg("do_export not success because of %s" % ERROR_MAP[ret])
+        # 设置进度条为0
+        self.progressBar.setProperty("value", 0)
+        self.progressVal = 0
+
+        # 禁用按钮
+        self.pushButton_3.setVisible(False)
+
+        from handler_thread import HandlerThread
+        self.htThread = HandlerThread()
+        # 登陆完成的信号绑定到登陆结束的槽函数
+        self.htThread.overSignal.connect(self.handler_over)
+        # 设置线程的参数
+        self.htThread.set_para(begin_commit, end_commit, local_git_path, save_path, check_status)
+        # 启动线程
+        self.htThread.start()
+
+        from handler_thread import ProgressThread
+        self.pgThread = ProgressThread()
+        # 登陆完成的信号绑定到登陆结束的槽函数
+        self.pgThread.overSignal.connect(self.progress_trigger)
+        # 启动线程
+        self.pgThread.start()
+
+    def handler_over(self, ret):
+        if ret[0] != EXEC_SUCCESS:
+            if ERROR_MAP.has_key(ret[0]):
+                self.show_msg("do_export not success because of %s" % ERROR_MAP[ret[0]])
             else:
                 self.show_msg("do_export not success because of unknown error")
+
+    def progress_trigger(self, ret):
+        if self.htThread.isFinished():
+            self.pgThread.quit()
+            # 进度条到100
+            self.progressBar.setProperty("value", 100)
+            # 启用按钮
+            self.pushButton_3.setVisible(True)
+        else:
+            self.progressVal = 99 if self.progressVal + 10 >= 100 else self.progressVal + 10
+            self.progressBar.setProperty("value", self.progressVal)
 
     def show_msg(self, msg):
         msg_box = QtGui.QMessageBox(QtGui.QMessageBox.Warning, "Alert", u"导出结果为:%s" % msg)
@@ -148,6 +181,7 @@ if __name__ == "__main__":
     # 设置log的位置
     config_log_path(os.getcwd())
 
+    # 启动窗口
     app = QtGui.QApplication(sys.argv)
     form = QtGui.QMainWindow()
     ui = Ui_MainWindow()
